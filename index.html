@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>BEF System</title>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
+                background: #8fb9d9;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            /* Login Styles */
+            .login-container {
+                max-width: 400px;
+                margin: 100px auto;
+                background: white;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .login-logo {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .logo-image {
+                max-width: 300px;
+                max-height: 80px;
+                height: auto;
+                width: auto;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px;
+                background: #2563eb;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            .btn:hover {
+                background: #1d4ed8;
+            }
+
+            .error {
+                background: #fef2f2;
+                border: 1px solid #fee2e2;
+                color: #dc2626;
+                padding: 10px;
+                border-radius: 4px;
+                margin-bottom: 20px;
+            }
+
+            .success {
+                background: #f0fdf4;
+                border: 1px solid #dcfce7;
+                color: #16a34a;
+                padding: 10px;
+                border-radius: 4px;
+                margin-bottom: 20px;
+            }
+
+            /* Main App Styles */
+            .header {
+                background: #236aaa;
+                padding: 20px 0;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+            }
+
+            .header-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-logo {
+                display: flex;
+                align-items: center;
+            }
+
+            .header-market-select {
+                padding: 8px 12px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.9);
+                color: #236aaa;
+                font-size: 14px;
+                font-weight: 500;
+                min-width: 150px;
+            }
+
+            .header-market-select:focus {
+                outline: 2px solid rgba(255, 255, 255, 0.8);
+                outline-offset: -2px;
+                background: white;
+            }
+
+            .page-logo {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .page-logo-image {
+                max-width: 400px;
+                max-height: 100px;
+                height: auto;
+                width: auto;
+            }
+
+            .logout-btn {
+                padding: 8px 16px;
+                background: #ef4444;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            /* Calendar Styles */
+            .calendar-container {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+                max-width: 650px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .calendar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .calendar-nav {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .calendar-nav button {
+                padding: 8px 12px;
+                background: #f3f4f6;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .calendar-nav button:hover {
+                background: #e5e7eb;
+            }
+
+            .calendar-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+                text-align: center;
+            }
+
+            .calendar-header-cell {
+                padding: 10px;
+                font-weight: bold;
+                color: #6b7280;
+            }
+
+            .calendar-day {
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                color: #374151;
+                display: block;
+            }
+
+            .calendar-day:hover {
+                background: #f9fafb;
+                border-color: #3b82f6;
+            }
+
+            .calendar-day.today {
+                background: #eff6ff;
+                border-color: #3b82f6;
+                font-weight: bold;
+            }
+
+            .calendar-day.selected {
+                background: #dbeafe;
+                border-color: #2563eb;
+                font-weight: bold;
+            }
+
+            .calendar-day.disabled {
+                color: #9ca3af;
+                cursor: default !important;
+                background: transparent !important;
+                border-color: transparent !important;
+                text-decoration: none !important;
+                pointer-events: none !important;
+                opacity: 0.5;
+            }
+
+            /* Form Styles */
+            .form-container {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                overflow-x: auto;
+            }
+
+            .form-header {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+            .save-status {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                border-radius: 4px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                display: none;
+            }
+
+            .save-status.saving {
+                background: #f59e0b;
+                display: block;
+            }
+
+            .save-status.saved {
+                background: #10b981;
+                display: block;
+            }
+
+            .save-status.error {
+                background: #ef4444;
+                display: block;
+            }
+
+            /* Table Styles */
+            .forecast-table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 1200px;
+            }
+
+            .forecast-table th,
+            .forecast-table td {
+                border: 1px solid #d1d5db;
+                padding: 0;
+                text-align: center;
+            }
+
+            .forecast-table th {
+                background: #f9fafb;
+                font-weight: bold;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .forecast-table .station-header {
+                text-align: center;
+                font-weight: bold;
+                background: #f3f4f6;
+            }
+
+            .forecast-table .city-header {
+                background: #e5e7eb;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .forecast-table .city-header td {
+                padding: 12px 8px;
+                background: #e5e7eb;
+            }
+
+            .forecast-table input {
+                width: 100%;
+                height: 32px;
+                padding: 0;
+                border: none;
+                border-radius: 0;
+                text-align: center;
+                margin: 0;
+                display: block;
+                box-sizing: border-box;
+            }
+
+            /* Hide number input arrows */
+            .forecast-table input[type="number"]::-webkit-outer-spin-button,
+            .forecast-table input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .forecast-table input[type="number"] {
+                -moz-appearance: textfield;
+            }
+
+            .forecast-table input:focus {
+                outline: 2px solid #3b82f6;
+                outline-offset: -2px;
+            }
+
+            .forecast-table .station-cell {
+                text-align: center;
+                font-weight: bold;
+                white-space: nowrap;
+                background: #f3f4f6;
+            }
+
+            .forecast-table .location-sub {
+                font-size: 0.8em;
+                color: #6b7280;
+            }
+
+            .submit-container {
+                margin-top: 20px;
+                text-align: center;
+            }
+
+            .submit-btn {
+                padding: 12px 30px;
+                background: #059669;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            .submit-btn:hover {
+                background: #047857;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            /* Auto-save indicator */
+            .auto-save-indicator {
+                font-size: 0.9em;
+                color: #6b7280;
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            /* Date indicator */
+            .date-entries-status {
+                text-align: center;
+                margin-bottom: 15px;
+                padding: 8px;
+                border-radius: 4px;
+                font-size: 0.9em;
+            }
+
+            .date-entries-status.has-entries {
+                background: #f0fdf4;
+                border: 1px solid #dcfce7;
+                color: #166534;
+            }
+
+            .date-entries-status.no-entries {
+                background: #fefce8;
+                border: 1px solid #fef3c7;
+                color: #854d0e;
+            }
+
+            /* Market Filter Styles */
+            .filter-container {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+            }
+
+            .filter-group {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                max-width: 300px;
+            }
+
+            .filter-group label {
+                font-weight: 500;
+                color: #374151;
+                white-space: nowrap;
+            }
+
+            .market-filter-select {
+                padding: 8px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                font-size: 14px;
+                background: white;
+                color: #374151;
+                flex: 1;
+            }
+
+            .market-filter-select:focus {
+                outline: 2px solid #3b82f6;
+                outline-offset: -2px;
+                border-color: #3b82f6;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <!-- Login Screen -->
+            <div id="loginScreen" class="login-container">
+                <div class="login-logo">
+                    <img
+                        src="img/logo.png"
+                        alt="Weather Forecast System"
+                        class="logo-image"
+                    />
+                </div>
+                <div id="loginMessage"></div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" required />
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+            </div>
+
+            <!-- Main App Screen -->
+            <div id="mainScreen" class="hidden">
+                <div class="header">
+                    <div class="header-content">
+                        <select id="marketFilter" class="header-market-select">
+                            <option value="all">All Markets</option>
+                            <option value="english" selected>English</option>
+                            <option value="spanish">Spanish</option>
+                        </select>
+                        <button id="logoutBtn" class="logout-btn">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <!-- Logo -->
+                    <div class="page-logo">
+                        <img
+                            src="img/logo.png"
+                            alt="Weather Forecast Entry System"
+                            class="page-logo-image"
+                        />
+                    </div>
+
+                    <!-- Calendar -->
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <h2 id="calendarTitle">November 2025</h2>
+                            <div class="calendar-nav">
+                                <button id="prevMonth">‹ Previous</button>
+                                <button id="nextMonth">Next ›</button>
+                            </div>
+                        </div>
+                        <div id="calendarGrid" class="calendar-grid">
+                            <!-- Calendar will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Forecast Form -->
+                    <div class="form-container">
+                        <h2 class="form-header" id="formTitle">
+                            Forecasts for Wednesday, November 12, 2025
+                        </h2>
+                        <div
+                            id="dateEntriesStatus"
+                            class="date-entries-status"
+                        ></div>
+                        <div class="save-status" id="saveStatus"></div>
+
+                        <form id="forecastForm">
+                            <table class="forecast-table">
+                                <thead>
+                                    <tr>
+                                        <th class="station-header">Station</th>
+                                        <th>D1High</th>
+                                        <th>D1NLow</th>
+                                        <th>D2High</th>
+                                        <th>D2Low</th>
+                                        <th>D3High</th>
+                                        <th>D3Low</th>
+                                        <th>D4High</th>
+                                        <th>D4Low</th>
+                                        <th>D1</th>
+                                        <th>D1N</th>
+                                        <th>D2</th>
+                                        <th>D3</th>
+                                        <th>D4</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecastTableBody">
+                                    <!-- Form rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+
+                            <div class="auto-save-indicator">
+                                Data is automatically saved as you type. Manual
+                                submission also available below.
+                            </div>
+
+                            <div class="submit-container">
+                                <button type="submit" class="submit-btn">
+                                    Submit All Forecasts
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Configuration
+            const SUPABASE_URL = "https://jpdhzwfsomuompbcixmf.supabase.co";
+            const SUPABASE_ANON_KEY =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZGh6d2Zzb211b21wYmNpeG1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NjIwNzQsImV4cCI6MjA3ODUzODA3NH0.MJG3bMLMfhWqU1p7aI0eJX3dnA8t85MBZWgadHP-PPY";
+
+            // Initialize Supabase
+            const supabase = window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_ANON_KEY,
+            );
+
+            // State
+            let currentUser = null;
+            let selectedDate = new Date();
+            let currentMonth = new Date();
+            let stations = [];
+            let locations = [];
+            let filteredStations = [];
+
+            // Helper function to format date consistently in local timezone
+            function formatDateLocal(date) {
+                return (
+                    date.getFullYear() +
+                    "-" +
+                    String(date.getMonth() + 1).padStart(2, "0") +
+                    "-" +
+                    String(date.getDate()).padStart(2, "0")
+                );
+            }
+            let autoSaveTimeout = null;
+            let currentMarketFilter = "english"; // Default to English as requested
+
+            // DOM Elements
+            const loginScreen = document.getElementById("loginScreen");
+            const mainScreen = document.getElementById("mainScreen");
+            const loginForm = document.getElementById("loginForm");
+            const forecastForm = document.getElementById("forecastForm");
+            const logoutBtn = document.getElementById("logoutBtn");
+            const dateEntriesStatus =
+                document.getElementById("dateEntriesStatus");
+            const marketFilter = document.getElementById("marketFilter");
+
+            // Initialize App
+            document.addEventListener("DOMContentLoaded", async () => {
+                checkAuth();
+                setupEventListeners();
+            });
+
+            // Check if user is authenticated
+            async function checkAuth() {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                if (session) {
+                    currentUser = session.user;
+                    showMainScreen();
+                } else {
+                    showLoginScreen();
+                }
+            }
+
+            // Setup event listeners
+            function setupEventListeners() {
+                loginForm.addEventListener("submit", handleLogin);
+                logoutBtn.addEventListener("click", handleLogout);
+                forecastForm.addEventListener("submit", handleFormSubmit);
+                marketFilter.addEventListener(
+                    "change",
+                    handleMarketFilterChange,
+                );
+
+                // Calendar navigation
+                document
+                    .getElementById("prevMonth")
+                    .addEventListener("click", () => changeMonth(-1));
+                document
+                    .getElementById("nextMonth")
+                    .addEventListener("click", () => changeMonth(1));
+            }
+
+            // Login Handler
+            async function handleLogin(e) {
+                e.preventDefault();
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                const messageDiv = document.getElementById("loginMessage");
+
+                try {
+                    const { data, error } =
+                        await supabase.auth.signInWithPassword({
+                            email,
+                            password,
+                        });
+
+                    if (error) throw error;
+
+                    currentUser = data.user;
+                    showMessage(messageDiv, "Login successful!", "success");
+                    setTimeout(() => showMainScreen(), 1000);
+                } catch (error) {
+                    showMessage(
+                        messageDiv,
+                        `Login failed: ${error.message}`,
+                        "error",
+                    );
+                }
+            }
+
+            // Logout Handler
+            async function handleLogout() {
+                await supabase.auth.signOut();
+                currentUser = null;
+                showLoginScreen();
+            }
+
+            // Show appropriate screen
+            function showLoginScreen() {
+                loginScreen.classList.remove("hidden");
+                mainScreen.classList.add("hidden");
+            }
+
+            async function showMainScreen() {
+                loginScreen.classList.add("hidden");
+
+                // Check user role and route appropriately
+                try {
+                    const { data: profile, error } = await supabase
+                        .from("user_profiles")
+                        .select("role")
+                        .eq("user_id", currentUser.id)
+                        .single();
+
+                    if (error) {
+                        console.error("Error loading user profile:", error);
+                        alert(
+                            "Error: User profile not found. Please contact an administrator.",
+                        );
+                        await logout();
+                        return;
+                    }
+
+                    if (profile.role === "tvpro") {
+                        // Redirect to TV Pro interface
+                        window.location.href = "tvpro.html";
+                    } else if (profile.role === "admin") {
+                        // Show admin interface ONLY for confirmed admin users
+                        mainScreen.classList.remove("hidden");
+                        loadData();
+                        renderCalendar();
+                    } else {
+                        console.error("Invalid user role:", profile.role);
+                        alert(
+                            "Error: Invalid user role. Please contact an administrator.",
+                        );
+                        await logout();
+                    }
+                } catch (error) {
+                    console.error("Error checking user role:", error);
+                    alert(
+                        "Error: Unable to verify user role. Please contact an administrator.",
+                    );
+                    await logout();
+                }
+            }
+
+            // Handle market filter change
+            function handleMarketFilterChange(e) {
+                currentMarketFilter = e.target.value;
+                filterStations();
+                renderForecastForm();
+            }
+
+            // Filter stations based on market language
+            function filterStations() {
+                if (currentMarketFilter === "all") {
+                    filteredStations = stations;
+                } else {
+                    filteredStations = stations.filter(
+                        (station) =>
+                            station.market_language === currentMarketFilter,
+                    );
+                }
+            }
+
+            // Load data from Supabase
+            async function loadData() {
+                // Security check: Verify user is admin
+                try {
+                    const { data: profile, error } = await supabase
+                        .from("user_profiles")
+                        .select("role")
+                        .eq("user_id", currentUser.id)
+                        .single();
+
+                    if (error || profile.role !== "admin") {
+                        console.error(
+                            "Security: Non-admin user attempted to access admin data",
+                        );
+                        await logout();
+                        return;
+                    }
+                } catch (error) {
+                    console.error(
+                        "Security: Unable to verify user role in loadData",
+                        error,
+                    );
+                    await logout();
+                    return;
+                }
+
+                try {
+                    // Load locations first
+                    const { data: locationsData, error: locationsError } =
+                        await supabase
+                            .from("locations")
+                            .select("*")
+                            .order("name");
+
+                    if (locationsError) throw locationsError;
+                    locations = locationsData || [];
+
+                    // Load stations
+                    const { data: stationsData, error: stationsError } =
+                        await supabase
+                            .from("stations")
+                            .select("*")
+                            .order("location_id, call_sign");
+
+                    if (stationsError) throw stationsError;
+                    stations = stationsData || [];
+
+                    // Apply initial filter
+                    filterStations();
+
+                    if (filteredStations.length === 0) {
+                        document.getElementById("forecastTableBody").innerHTML =
+                            '<tr><td colspan="14">No stations found for selected market. Please check database setup or try a different market filter.</td></tr>';
+                        return;
+                    }
+
+                    renderForecastForm();
+                } catch (error) {
+                    console.error("Error loading data:", error);
+                    showMessage(
+                        document.getElementById("loginMessage"),
+                        "Error loading data. Please refresh.",
+                        "error",
+                    );
+                }
+            }
+
+            // Calendar Functions
+            function renderCalendar() {
+                const year = currentMonth.getFullYear();
+                const month = currentMonth.getMonth();
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const prevLastDay = new Date(year, month, 0);
+                const firstDayIndex = firstDay.getDay();
+                const lastDayIndex = lastDay.getDay();
+                const nextDays = 7 - lastDayIndex - 1;
+
+                document.getElementById("calendarTitle").textContent =
+                    `${new Date(year, month).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`;
+
+                let calendarHTML = "";
+
+                // Day headers
+                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                days.forEach((day) => {
+                    calendarHTML += `<div class="calendar-header-cell">${day}</div>`;
+                });
+
+                // Previous month days
+                for (let x = firstDayIndex; x > 0; x--) {
+                    calendarHTML += `<div class="calendar-day disabled">${prevLastDay.getDate() - x + 1}</div>`;
+                }
+
+                // Current month days
+                const today = new Date();
+                for (let i = 1; i <= lastDay.getDate(); i++) {
+                    const date = new Date(year, month, i);
+                    const isToday =
+                        date.toDateString() === today.toDateString();
+                    const isSelected =
+                        date.toDateString() === selectedDate.toDateString();
+
+                    let classes = "calendar-day";
+                    if (isToday) classes += " today";
+                    if (isSelected) classes += " selected";
+
+                    calendarHTML += `
+                    <a href="#" class="${classes}" data-date="${formatDateLocal(date)}">${i}</a>
+                `;
+                }
+
+                // Next month days
+                for (let j = 1; j <= nextDays; j++) {
+                    calendarHTML += `<div class="calendar-day disabled">${j}</div>`;
+                }
+
+                document.getElementById("calendarGrid").innerHTML =
+                    calendarHTML;
+
+                // Add click handlers to calendar days (only enabled ones)
+                document
+                    .querySelectorAll(".calendar-day:not(.disabled)")
+                    .forEach((day) => {
+                        day.addEventListener("click", async (e) => {
+                            e.preventDefault();
+                            if (day.dataset.date) {
+                                // Parse the YYYY-MM-DD format as local date to avoid timezone issues
+                                const dateParts = day.dataset.date.split("-");
+                                selectedDate = new Date(
+                                    dateParts[0],
+                                    dateParts[1] - 1,
+                                    dateParts[2],
+                                );
+                                console.log(
+                                    "Calendar: clicked",
+                                    day.dataset.date,
+                                    "→ parsed as",
+                                    selectedDate.toLocaleDateString(),
+                                );
+                                renderCalendar();
+                                updateFormDate();
+
+                                // Clear form and wait a bit for DOM to settle
+                                clearFormData();
+
+                                // Use a small timeout to ensure DOM is ready before loading data
+                                setTimeout(() => {
+                                    loadForecastData();
+
+                                    // If form still appears empty after loading, try once more
+                                    setTimeout(() => {
+                                        const hasData = Array.from(
+                                            document.querySelectorAll(
+                                                "#forecastForm input[data-field]",
+                                            ),
+                                        ).some((input) => input.value !== "");
+                                        if (!hasData) {
+                                            console.log(
+                                                "Form still empty, retrying data load...",
+                                            );
+                                            loadForecastData();
+                                        }
+                                    }, 200);
+                                }, 50);
+                            }
+                        });
+                    });
+
+                // Explicitly disable any interactions with disabled days
+                document
+                    .querySelectorAll(".calendar-day.disabled")
+                    .forEach((day) => {
+                        day.removeAttribute("href");
+                        day.style.pointerEvents = "none";
+                        day.style.cursor = "default";
+                        // Remove any click listeners
+                        day.replaceWith(day.cloneNode(true));
+                    });
+            }
+
+            function changeMonth(direction) {
+                currentMonth.setMonth(currentMonth.getMonth() + direction);
+                renderCalendar();
+            }
+
+            function selectToday() {
+                selectedDate = new Date();
+                currentMonth = new Date();
+                renderCalendar();
+                updateFormDate();
+                clearFormData(); // Clear form before loading new data
+                filterStations(); // Re-apply current filter
+                renderForecastForm(); // Re-render with filtered stations
+            }
+
+            function updateFormDate() {
+                document.getElementById("formTitle").textContent =
+                    `Forecasts for ${selectedDate.toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    })}`;
+            }
+
+            // Clear all form data
+            function clearFormData() {
+                console.log("Clearing form data for new date...");
+
+                // Clear all form inputs
+                const formInputs = document.querySelectorAll(
+                    "#forecastForm input[data-field]",
+                );
+                console.log(`Found ${formInputs.length} form inputs to clear`);
+
+                formInputs.forEach((input) => {
+                    input.value = "";
+                });
+
+                // Clear status
+                dateEntriesStatus.textContent = "";
+                dateEntriesStatus.className = "date-entries-status";
+            }
+
+            // Form Functions
+            function renderForecastForm() {
+                const tbody = document.getElementById("forecastTableBody");
+                let formHTML = "";
+                let currentLocationId = "";
+
+                if (!filteredStations || filteredStations.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="14">No stations found for selected market. Please try a different market filter.</td></tr>';
+                    return;
+                }
+
+                filteredStations.forEach((station) => {
+                    // Find location name
+                    const location = locations.find(
+                        (loc) => loc.id === station.location_id,
+                    );
+                    const locationName = location
+                        ? location.name
+                        : "Unknown Location";
+
+                    // Add city header if location changes
+                    if (station.location_id !== currentLocationId) {
+                        currentLocationId = station.location_id;
+                        formHTML += `
+                        <tr class="city-header">
+                            <td colspan="14">${locationName}</td>
+                        </tr>
+                    `;
+                    }
+
+                    const stationDisplay = station.location_shortname
+                        ? `${station.call_sign} (${station.location_shortname})`
+                        : station.call_sign;
+
+                    formHTML += `
+                    <tr data-station-id="${station.id}">
+                        <td class="station-cell">
+                            <a name="${station.call_sign}">${stationDisplay}</a>
+                        </td>
+                        <td><input type="number" data-field="d1_high"></td>
+                        <td><input type="number" data-field="d1n_low"></td>
+                        <td><input type="number" data-field="d2_high"></td>
+                        <td><input type="number" data-field="d2_low"></td>
+                        <td><input type="number" data-field="d3_high"></td>
+                        <td><input type="number" data-field="d3_low"></td>
+                        <td><input type="number" data-field="d4_high"></td>
+                        <td><input type="number" data-field="d4_low"></td>
+                        <td><input type="text" data-field="d1_conditions"></td>
+                        <td><input type="text" data-field="d1n_conditions"></td>
+                        <td><input type="text" data-field="d2_conditions"></td>
+                        <td><input type="text" data-field="d3_conditions"></td>
+                        <td><input type="text" data-field="d4_conditions"></td>
+                    </tr>
+                `;
+                });
+
+                tbody.innerHTML = formHTML;
+
+                // Add auto-save functionality
+                document
+                    .querySelectorAll("#forecastForm input")
+                    .forEach((input) => {
+                        input.addEventListener("input", handleAutoSave);
+                    });
+
+                loadForecastData();
+            }
+
+            // Load forecast data for selected date
+            async function loadForecastData() {
+                if (!filteredStations.length) {
+                    console.log("No filtered stations available");
+                    return;
+                }
+
+                // Verify form elements exist before loading data
+                const formElements = document.querySelectorAll(
+                    "#forecastForm input[data-field]",
+                );
+                if (formElements.length === 0) {
+                    console.warn("No form elements found to populate data");
+                    return;
+                }
+
+                try {
+                    // Use local date instead of UTC to avoid timezone issues
+                    const dateStr = formatDateLocal(selectedDate);
+                    console.log(
+                        "Loading forecast data for date:",
+                        dateStr,
+                        "(local time:",
+                        selectedDate.toLocaleString(),
+                        ")",
+                    );
+
+                    // Get station IDs for filtered stations
+                    const filteredStationIds = filteredStations.map(
+                        (s) => s.id,
+                    );
+
+                    const { data: forecasts, error } = await supabase
+                        .from("forecasts")
+                        .select("*")
+                        .eq("forecast_date", dateStr)
+                        .in("station_id", filteredStationIds);
+
+                    if (error) {
+                        console.error("Error loading forecasts:", error);
+                        return;
+                    }
+
+                    console.log(
+                        "Loaded existing forecasts:",
+                        forecasts?.length || 0,
+                    );
+
+                    // Update date entries status
+                    if (forecasts && forecasts.length > 0) {
+                        const entriesCount = forecasts.filter(
+                            (f) =>
+                                f.d1_high ||
+                                f.d1n_low ||
+                                f.d2_high ||
+                                f.d2_low ||
+                                f.d3_high ||
+                                f.d3_low ||
+                                f.d4_high ||
+                                f.d4_low,
+                        ).length;
+                        dateEntriesStatus.textContent = `${entriesCount} of ${filteredStations.length} stations have forecast data for this date`;
+                        dateEntriesStatus.className =
+                            "date-entries-status has-entries";
+                    } else {
+                        dateEntriesStatus.textContent =
+                            "No forecast data found for this date. Start entering data below.";
+                        dateEntriesStatus.className =
+                            "date-entries-status no-entries";
+                    }
+
+                    // Load existing forecast data into form
+                    if (forecasts && forecasts.length > 0) {
+                        console.log(
+                            `Loading data for ${forecasts.length} stations`,
+                        );
+                        forecasts.forEach((forecast) => {
+                            const row = document.querySelector(
+                                `tr[data-station-id="${forecast.station_id}"]`,
+                            );
+                            if (row) {
+                                console.log(
+                                    "Loading forecast for station:",
+                                    forecast.station_id,
+                                );
+                                let fieldsPopulated = 0;
+
+                                Object.keys(forecast).forEach((key) => {
+                                    if (
+                                        key.startsWith("d1") ||
+                                        key.startsWith("d2") ||
+                                        key.startsWith("d3") ||
+                                        key.startsWith("d4")
+                                    ) {
+                                        const input = row.querySelector(
+                                            `input[data-field="${key}"]`,
+                                        );
+                                        if (input && forecast[key] !== null) {
+                                            input.value = forecast[key];
+                                            fieldsPopulated++;
+                                        }
+                                    }
+                                });
+
+                                console.log(
+                                    `Populated ${fieldsPopulated} fields for station ${forecast.station_id}`,
+                                );
+                            } else {
+                                console.warn(
+                                    "No row found for station_id:",
+                                    forecast.station_id,
+                                );
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading forecast data:", error);
+                }
+            }
+
+            // Auto-save functionality
+            function handleAutoSave(e) {
+                clearTimeout(autoSaveTimeout);
+                showSaveStatus("saving", "Auto-saving...");
+
+                autoSaveTimeout = setTimeout(async () => {
+                    await saveSingleForecast(e.target);
+                }, 2000);
+            }
+
+            async function saveSingleForecast(input) {
+                try {
+                    const row = input.closest("tr");
+                    const stationId = row.getAttribute("data-station-id");
+
+                    if (!stationId || stationId === "null") {
+                        console.error("Invalid station ID:", stationId);
+                        showSaveStatus(
+                            "error",
+                            "Invalid station - please reload page",
+                        );
+                        return;
+                    }
+
+                    // Use local date instead of UTC to avoid timezone issues
+                    const dateStr = formatDateLocal(selectedDate);
+
+                    // Collect all forecast data for this station
+                    const forecastData = {
+                        station_id: parseInt(stationId),
+                        forecast_date: dateStr,
+                    };
+
+                    row.querySelectorAll("input[data-field]").forEach(
+                        (fieldInput) => {
+                            const fieldName = fieldInput.dataset.field;
+                            const value = fieldInput.value;
+
+                            // Handle numeric fields
+                            if (
+                                fieldName.includes("high") ||
+                                fieldName.includes("low")
+                            ) {
+                                forecastData[fieldName] = value
+                                    ? parseInt(value)
+                                    : null;
+                            } else {
+                                forecastData[fieldName] = value || null;
+                            }
+                        },
+                    );
+
+                    // Save to database
+                    const { data, error } = await supabase
+                        .from("forecasts")
+                        .upsert(forecastData, {
+                            onConflict: "station_id,forecast_date",
+                        });
+
+                    if (error) {
+                        console.error("Database error:", error);
+                        throw error;
+                    }
+
+                    console.log("Save successful:", data);
+                    showSaveStatus("saved", "Auto-saved successfully!");
+                    setTimeout(() => hideSaveStatus(), 2000);
+
+                    // Update the date entries status
+                    loadForecastData();
+                } catch (error) {
+                    console.error("Error saving forecast:", error);
+                    showSaveStatus(
+                        "error",
+                        "Auto-save failed: " + error.message,
+                    );
+                    setTimeout(() => hideSaveStatus(), 3000);
+                }
+            }
+
+            // Manual form submission
+            async function handleFormSubmit(e) {
+                e.preventDefault();
+
+                try {
+                    // Use local date instead of UTC to avoid timezone issues
+                    const dateStr = formatDateLocal(selectedDate);
+                    const forecasts = [];
+
+                    document
+                        .querySelectorAll(
+                            "#forecastTableBody tr[data-station-id]",
+                        )
+                        .forEach((row) => {
+                            const stationId =
+                                row.getAttribute("data-station-id");
+
+                            if (!stationId || stationId === "null") {
+                                console.error(
+                                    "Skipping invalid station ID:",
+                                    stationId,
+                                );
+                                return;
+                            }
+
+                            const forecastData = {
+                                station_id: parseInt(stationId),
+                                forecast_date: dateStr,
+                            };
+
+                            row.querySelectorAll("input[data-field]").forEach(
+                                (fieldInput) => {
+                                    const fieldName = fieldInput.dataset.field;
+                                    const value = fieldInput.value;
+
+                                    if (
+                                        fieldName.includes("high") ||
+                                        fieldName.includes("low")
+                                    ) {
+                                        forecastData[fieldName] = value
+                                            ? parseInt(value)
+                                            : null;
+                                    } else {
+                                        forecastData[fieldName] = value || null;
+                                    }
+                                },
+                            );
+
+                            forecasts.push(forecastData);
+                        });
+
+                    console.log("Submitting all forecasts:", forecasts);
+
+                    // Batch save all forecasts
+                    const { data, error } = await supabase
+                        .from("forecasts")
+                        .upsert(forecasts, {
+                            onConflict: "station_id,forecast_date",
+                        });
+
+                    if (error) throw error;
+
+                    console.log("All forecasts saved successfully:", data);
+                    alert("All forecasts saved successfully!");
+
+                    // Update the date entries status
+                    loadForecastData();
+                } catch (error) {
+                    console.error("Error saving forecasts:", error);
+                    alert("Error saving forecasts: " + error.message);
+                }
+            }
+
+            // Save status display
+            function showSaveStatus(type, message) {
+                const statusDiv = document.getElementById("saveStatus");
+                statusDiv.className = `save-status ${type}`;
+                statusDiv.textContent = message;
+                statusDiv.style.display = "block";
+            }
+
+            function hideSaveStatus() {
+                document.getElementById("saveStatus").style.display = "none";
+            }
+
+            // Utility functions
+            function showMessage(element, message, type) {
+                element.className = type;
+                element.textContent = message;
+                element.style.display = "block";
+            }
+        </script>
+    </body>
+</html>
